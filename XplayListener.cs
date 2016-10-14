@@ -1,13 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using WpfXplay.bean;
 
 namespace WpfXplay
@@ -65,8 +61,7 @@ namespace WpfXplay
         public void HandleMsg(string msg)
         {
             //Console.Out.WriteLine("msg="+msg);
-            JsonSerializer s = new JsonSerializer();
-            PlayObj pobj = s.Deserialize<PlayObj>(new JsonTextReader(new StringReader(msg)));
+            PlayObj pobj = Json.fromJson<PlayObj>(msg);
             callback?.HandlePlayObject(pobj);
         }
     }

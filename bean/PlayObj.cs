@@ -1,29 +1,34 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace WpfXplay.bean
 {
+    [DataContract]
     public class PlayObj
     {
+        [DataMember(Order = 0, IsRequired = true)]
         public String type;
 
+        [DataMember(Order = 1)]
         public String id;
 
+        [DataMember(Order = 2)]
         public String libName;
 
+        [DataMember(Order = 3)]
         public long start;
 
-        [JsonProperty("params")]
+        [DataMember(Order = 4, Name = "params")]
         public Dictionary<string, object> _params;
 
+        [DataMember(Order = 5)]
         public List<Dictionary<string, object>> deps;
 
         public string getPath()
@@ -106,5 +111,29 @@ namespace WpfXplay.bean
 
         }
         public void Stop() { }
+    }
+
+    public static class Json
+    {
+
+        public static T fromJson<T>(string jsonString)
+        {
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(jsonString)))
+            {
+                return (T)new DataContractJsonSerializer(typeof(T), new DataContractJsonSerializerSettings()
+                {
+                    UseSimpleDictionaryFormat = true
+                }).ReadObject(ms);
+            }
+        }
+
+        public static string toJson(object jsonObject)
+        {
+            using (var ms = new MemoryStream())
+            {
+                new DataContractJsonSerializer(jsonObject.GetType()).WriteObject(ms, jsonObject);
+                return Encoding.UTF8.GetString(ms.ToArray());
+            }
+        }
     }
 }

@@ -1,22 +1,9 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WpfXplay.bean;
 
 namespace WpfXplay
@@ -34,7 +21,9 @@ namespace WpfXplay
             InitializeComponent();
             xs = new XplayListener();
             xs.callback = this;
-            new Thread(xs.run).Start();
+            Thread t = new Thread(xs.run);
+            t.IsBackground = true;
+            t.Start();
             Width = System.Windows.SystemParameters.PrimaryScreenWidth * PlayObj.scaling;
             Height = System.Windows.SystemParameters.PrimaryScreenHeight * PlayObj.scaling;
 
@@ -57,7 +46,16 @@ namespace WpfXplay
                 PlayObj.dpiX = 96.0 * matrix.M11;
                 PlayObj.dpiY = 96.0 * matrix.M22;
             }
-            
+
+            ContextMenu aMenu = new ContextMenu();
+            MenuItem exitMenu = new MenuItem();
+            exitMenu.Header = "退出";
+            exitMenu.Click += (Object sender, RoutedEventArgs e) =>
+            {
+                Environment.Exit(0);
+            };
+            aMenu.Items.Add(exitMenu);
+            TopCanvas.ContextMenu = aMenu;
         }
 
         public void HandlePlayObject(object obj)
@@ -96,8 +94,8 @@ namespace WpfXplay
 
         public void StopLayout(PlayObj pobj)
         {
-            JArray tmp = pobj._params["ids"] as JArray;
-            Console.Out.WriteLine("tmp=" + tmp.GetType());
+            object[] tmp = pobj._params["ids"] as object[];
+            //Console.Out.WriteLine("tmp=" + tmp.GetType());
             foreach (string id in tmp)
             {
                 int zIndex = int.Parse(id);
