@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -22,40 +23,46 @@ namespace WpfXplay
             while (true)
             {
                 TcpClient client = tp.AcceptTcpClient();
-                Thread t = new Thread(ReceiveMessage);
-                t.Start(client);
+                ThreadPool.QueueUserWorkItem(ReceiveMessage, client);
             }
         }
 
         public void ReceiveMessage(object obj)
         {
-            TcpClient client = (TcpClient)obj;
-            NetworkStream stream = client.GetStream();
-            StreamReader reader = new StreamReader(stream);
-            StreamWriter output = new StreamWriter(stream);
-            string tmp = "";
-            StringBuilder sb = new StringBuilder();
-            while (true)
+            try
             {
-                tmp = reader.ReadLine();
-                //Console.Out.WriteLine("line=" + tmp);
-                if (tmp.StartsWith("#End"))
+                TcpClient client = (TcpClient)obj;
+                NetworkStream stream = client.GetStream();
+                StreamReader reader = new StreamReader(stream);
+                StreamWriter output = new StreamWriter(stream);
+                string tmp = "";
+                StringBuilder sb = new StringBuilder();
+                while (true)
                 {
-                    HandleMsg(sb.ToString());
-                    output.WriteLine("{}");
-                    output.WriteLine("#End");
-                    output.Flush();
+                    tmp = reader.ReadLine();
+                    //Console.Out.WriteLine("line=" + tmp);
+                    if (tmp.StartsWith("#End"))
+                    {
+                        HandleMsg(sb.ToString());
+                        output.WriteLine("{}");
+                        output.WriteLine("#End");
+                        output.Flush();
+                    }
+                    else if (tmp.StartsWith("#Close"))
+                    {
+                        client.Close();
+                        break;
+                    }
+                    else
+                    {
+                        sb.Append(tmp).AppendLine();
+                    }
                 }
-                else if (tmp.StartsWith("#Close"))
-                {
-                    client.Close();
-                    break;
-                }
-                else
-                {
-                    sb.Append(tmp).AppendLine();
-                }
+            } catch (Exception e)
+            {
+                Console.Out.WriteLine(e);
             }
+            
         }
 
         public void HandleMsg(string msg)
