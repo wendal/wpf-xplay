@@ -56,6 +56,13 @@ namespace WpfXplay
             };
             aMenu.Items.Add(exitMenu);
             TopCanvas.ContextMenu = aMenu;
+            ContextMenu = aMenu;
+            this.MouseLeftButtonDown += this.Window_MouseLeftButtonDown;
+        }
+
+        private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            this.DragMove();
         }
 
         public void HandlePlayObject(object obj)
@@ -110,10 +117,26 @@ namespace WpfXplay
                     
         }
 
+        public void StopLayout(int zIndex)
+        {
+            UIElement ele = getByZIndex(zIndex);
+            if (ele != null)
+            {
+                TopCanvas.Children.Remove(ele);
+                TopCanvas.UnregisterName("LV_" + zIndex);
+            }
+        }
+
         public void StartLayout(int zIndex, PlayObj pobj)
         {
             string libName = pobj.libName;
             UIElement ele = getByZIndex(zIndex);
+            UIElement old = null;
+            if (ele != null && ele is XplayUiEle && ((XplayUiEle)ele).getLibName() != pobj.libName)
+            {
+                old = ele;
+                ele = null;
+            }
             bool isNew = ele == null;
             if (ele == null)
             {
@@ -139,7 +162,7 @@ namespace WpfXplay
             {
                 Canvas.SetLeft(ele, pobj.getIntParam("left") * PlayObj.scaling * 96 / PlayObj.dpiX);
                 Canvas.SetTop(ele, pobj.getIntParam("top") * PlayObj.scaling * 96 / PlayObj.dpiY - 20);
-                Console.Out.WriteLine(""+(pobj.getIntParam("top") * PlayObj.scaling * 96 / PlayObj.dpiY));
+                //Console.Out.WriteLine(""+(pobj.getIntParam("top") * PlayObj.scaling * 96 / PlayObj.dpiY));
             }
             else
             {
@@ -152,6 +175,11 @@ namespace WpfXplay
             if (isNew)
             {
                 TopCanvas.Children.Add(ele);
+                if (old != null)
+                {
+                    TopCanvas.Children.Remove(old);
+                    TopCanvas.UnregisterName("LV_" + zIndex);
+                }
                 TopCanvas.RegisterName("LV_" + zIndex, ele);
             }
             xe.Play();
@@ -180,5 +208,6 @@ namespace WpfXplay
         void prepare(PlayObj pobj);
         void Play();
         void Stop();
+        string getLibName();
     }
 }

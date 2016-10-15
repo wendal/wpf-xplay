@@ -71,7 +71,10 @@ namespace WpfXplay.bean
             Width = pobj.getDisplayParamReal("width");
             Height = pobj.getDisplayParamReal("height");
         }
-        
+        public string getLibName()
+        {
+            return "video";
+        }
     }
 
 
@@ -84,13 +87,25 @@ namespace WpfXplay.bean
             StretchDirection = StretchDirection.Both;
             Height = pobj.getDisplayParamReal("height");
             Width = pobj.getDisplayParamReal("width");
-            Source = new BitmapImage(new Uri(pobj.getPath()));
+            try
+            {
+                Source = new BitmapImage(new Uri(pobj.getPath()));
+            } catch (System.NotSupportedException e)
+            {
+                Console.Out.WriteLine("error path" + pobj.getPath());
+            }
+            
         }
 
         public void Play() {
             
         }
         public void Stop() { }
+
+        public string getLibName()
+        {
+            return "pic";
+        }
     }
 
     public class TextUiEle : TextBlock, XplayUiEle
@@ -111,6 +126,11 @@ namespace WpfXplay.bean
 
         }
         public void Stop() { }
+
+        public string getLibName()
+        {
+            return "text";
+        }
     }
 
     public static class Json
