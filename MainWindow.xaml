@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfXplay"
         mc:Ignorable="d"
         Title="MainWindow" Height="540" Width="960"
-        WindowStyle="None"  AllowsTransparency="False" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+        WindowStyle="None"  AllowsTransparency="True" Background="#FF699AFA">
     <Canvas Name="TopCanvas">
     </Canvas>
 </Window>

@@ -26,6 +26,7 @@ namespace WpfXplay
             t.Start();
             Width = System.Windows.SystemParameters.PrimaryScreenWidth * PlayObj.scaling;
             Height = System.Windows.SystemParameters.PrimaryScreenHeight * PlayObj.scaling;
+            
 
             Matrix matrix;
             var source = PresentationSource.FromVisual(this);
