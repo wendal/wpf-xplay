@@ -16,6 +16,8 @@ namespace WpfXplay
 
         XplayListener xs;
 
+        Peanut peanut;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -24,8 +26,26 @@ namespace WpfXplay
             Thread t = new Thread(xs.run);
             t.IsBackground = true;
             t.Start();
+
+            peanut = new Peanut();
+            Peanut.callback = this;
+            //peanut.Start();
+            PlayObj.scaling = peanut.getDoubleConf("scaling");
+            if (PlayObj.scaling < 0.1)
+            {
+                PlayObj.scaling = 0.5;
+                Peanut.conf["scaling"] = "0.5";
+                peanut.saveConf();
+            }
+                
+
             Width = System.Windows.SystemParameters.PrimaryScreenWidth * PlayObj.scaling;
             Height = System.Windows.SystemParameters.PrimaryScreenHeight * PlayObj.scaling;
+            if (PlayObj.scaling == 1)
+            {
+                this.Top = 0;
+                this.Left = 0;
+            }
             
 
             Matrix matrix;
@@ -56,6 +76,27 @@ namespace WpfXplay
                 Environment.Exit(0);
             };
             aMenu.Items.Add(exitMenu);
+            if (PlayObj.scaling != 1)
+            {
+                MenuItem fullScreenMenu = new MenuItem();
+                fullScreenMenu.Header = "全屏播放";
+                fullScreenMenu.Click += (Object sender, RoutedEventArgs e) =>
+                {
+                    setScalingAndExit(1);
+                };
+                aMenu.Items.Add(fullScreenMenu);
+            } else
+            {
+                MenuItem previewScreenMenu = new MenuItem();
+                previewScreenMenu.Header = "半屏播放";
+                previewScreenMenu.Click += (Object sender, RoutedEventArgs e) =>
+                {
+                    setScalingAndExit(0.5);
+                };
+                aMenu.Items.Add(previewScreenMenu);
+            }
+            
+
             TopCanvas.ContextMenu = aMenu;
             ContextMenu = aMenu;
             this.MouseLeftButtonDown += this.Window_MouseLeftButtonDown;
@@ -195,6 +236,15 @@ namespace WpfXplay
         {
             DateTime dt1970 = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             return (dateTime.Ticks - dt1970.Ticks) / 10000;
+        }
+
+        public void setScalingAndExit(double scaling)
+        {
+            PlayObj.scaling = scaling;
+            Peanut.conf["scaling"] = "" + scaling;
+            peanut.saveConf();
+            MessageBox.Show("设置完成,程序将自动退出");
+            Environment.Exit(0);
         }
     }
 

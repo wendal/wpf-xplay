@@ -34,7 +34,12 @@ namespace WpfXplay.bean
         public string getPath()
         {
             if (_params.ContainsKey("path"))
-                return Path.GetFullPath(_params["path"].ToString());
+            {
+                string tmp = _params["path"].ToString();
+                if (tmp.StartsWith("http"))
+                    return tmp;
+                return Path.GetFullPath(tmp);
+            }
             else if (deps.Count > 0)
             {
                 return deps[0]["path"].ToString();
